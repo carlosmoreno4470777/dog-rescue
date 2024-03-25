@@ -34,9 +34,6 @@ public class Location {
 	//If we delete a location all dogs data will be remove. using orphan removal 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true )
 	private Set<Dog> dogs = new HashSet<>();
-	
-
-
-	
+		
 	
 }

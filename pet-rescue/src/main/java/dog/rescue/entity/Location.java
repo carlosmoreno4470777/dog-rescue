@@ -20,8 +20,8 @@ public class Location {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long locationId;
-	
-	private String buisnessName;
+	               
+	private String businessName;
 	private String streetAddress;
 	private String city;
 	private String state;
@@ -32,7 +32,8 @@ public class Location {
 	//Because of the one to Many relationship with Dogs. we have to use a set of dogs
 	//We are going to defined the owning side of the one to many relationship with annotation OneToMany
 	//If we delete a location all dogs data will be remove. using orphan removal 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true )
+	//@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true )
+	  @OneToMany(mappedBy = "location", cascade = CascadeType.ALL,orphanRemoval = true)
 	private Set<Dog> dogs = new HashSet<>();
 		
 	

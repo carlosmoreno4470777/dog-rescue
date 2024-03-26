@@ -1,146 +1,199 @@
+// Copyright (c) 2023 by Promineo Tech.
+
 package dog.rescue.controller.model;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import dog.rescue.entity.Breed;
 import dog.rescue.entity.Dog;
 import dog.rescue.entity.Location;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * This class is a Data Transfer Object (DTO) that is used to input data to the
+ * application and return results from the application. It is the same as the
+ * entity classes but does not contain the recursive variables or any JPA
+ * annotations.
+ * 
+ * This class contains two inner classes, both of which are used externally by
+ * the application. To facilitate this the classes are both marked with the
+ * <em>public</em> and <em>static</em> keywords.
+ * 
+ * @Data typically adds a zero-argument constructor but this is removed if we
+ *       add another constructor. Since Jackson requires a zero-argument
+ *       constructor to marshal/unmarshal JSON, the zero-argument constructor is
+ *       added back with the NoArgsConstructor annotation.
+ * 
+ * @author Promineo
+ *
+ */
 @Data
 @NoArgsConstructor
 public class LocationData {
+  private Long locationId;
+  private String businessName;
+  private String streetAddress;
+  private String city;
+  private String state;
+  private String zip;
+  private String phone;
+  private Set<DogData> dogs = new HashSet<>();
 
-	private Long locationId;
-	private String buisnessName;
-	private String streetAddress;
-	private String city;
-	private String state;
-	private String zip;
-	private String phone;
-	// we will defined DogData in this class
-	private Set<DogData> dogs = new HashSet<>();
+  /**
+   * This constructor converts a Location entity to a LocationData object.
+   * 
+   * @param location The Location entity.
+   */
+  public LocationData(Location location) {
+    this.locationId = location.getLocationId();
+    this.businessName = location.getBusinessName();
+    this.streetAddress = location.getStreetAddress();
+    this.city = location.getCity();
+    this.state = location.getState();
+    this.zip = location.getZip();
+    this.phone = location.getPhone();
 
-	// Constructor for LocationData
-	public LocationData(Location location) {
-		this.locationId = location.getLocationId();
-		this.buisnessName = location.getBuisnessName();
-		this.streetAddress = location.getStreetAddress();
-		this.city = location.getCity();
-		this.state = location.getState();
-		this.zip = location.getZip();
-		this.phone = location.getPhone();
+    for(Dog dog : location.getDogs()) {
+      this.dogs.add(new DogData(dog));
+    }
+  }
 
-		// I want to set the dog data. therefore, I will set does base on Dog object
-		for (Dog dog : location.getDogs()) {
-			this.dogs.add(new DogData(dog));
-		}
-	}
-	
-	// constructor that will take the location variables
-	// we are passing all the fields except for the dogs fields
-	public LocationData(Long locationId, String buisnessName, String streetAddress, String city, String state,
-			String zip, String phone) {
+  /**
+   * This constructor is used for the tests to create a LocationData object from
+   * constants or literals.
+   * 
+   * @param locationId The location ID (primary key)
+   * @param businessName The name of the business
+   * @param streetAddress The street address of the business
+   * @param city The address city
+   * @param state The address state
+   * @param zip The address zip code
+   * @param phone The business phone number
+   */
+  public LocationData(Long locationId, String businessName,
+      String streetAddress, String city, String state, String zip,
+      String phone) {
+    this.locationId = locationId;
+    this.businessName = businessName;
+    this.streetAddress = streetAddress;
+    this.city = city;
+    this.state = state;
+    this.zip = zip;
+    this.phone = phone;
+  }
 
-		this.locationId = locationId;
-		this.buisnessName = buisnessName;
-		this.streetAddress = streetAddress;
-		this.city = city;
-		this.state = state;
-		this.zip = zip;
-		this.phone = phone;
+  /**
+   * Convert from a LocationData object to a Location entity.
+   * 
+   * @return The location entity.
+   */
+  public Location toLocation() {
+    Location location = new Location();
 
-	}
-	
-	// We need to convert from LocationData Object to Location Object
-	public Location toLocation() {
-		Location location = new Location();
-		//set all the fields
-		location.setLocationId(locationId);
-		location.setBuisnessName(buisnessName);
-		location.setStreetAddress(streetAddress);
-		location.setCity(city);
-		location.setState(state);
-		location.getZip();
-		location.getPhone();
-		
-		//set teh dogs
-		for (DogData dogData : dogs) {
-			location.getDogs().add(dogData.toDog());
-		}
-		
-		return location;
-	}
-	
-	// Dog data used in the Set
-	@Data
-	@NoArgsConstructor
-	public class DogData {
+    location.setLocationId(locationId);
+    location.setBusinessName(businessName);
+    location.setStreetAddress(streetAddress);
+    location.setCity(city);
+    location.setState(state);
+    location.setZip(zip);
+    location.setPhone(phone);
 
-		private Long dogId;
-		private String name;
-		private int age;
-		private String color;
-		// we will be using BreedData
-		private Set<BreedData> breeds = new HashSet<>();
+    for(DogData dogData : dogs) {
+      location.getDogs().add(dogData.toDog());
+    }
 
-		// Create a DogData constructor that take a Dog Object
-		public DogData(Dog dog) {
-			this.dogId = dog.getDogId();
-			this.name = dog.getName();
-			this.age = dog.getAge();
-			this.color = dog.getColor();
-			
-			for (Breed breed : dog.getBreeds()) {
-				this.breeds.add(new BreedData(breed));
-			}
+    return location;
+  }
 
-		}
+  /**
+   * This is the DogData inner class that contains the same fields as the Dog
+   * entity class without recursion in the class variables.
+   * 
+   * @author Promineo
+   *
+   */
+  @Data
+  @NoArgsConstructor
+  public static class DogData {
+    private Long dogId;
+    private String name;
+    private int age;
+    private String color;
+    private Set<BreedData> breeds = new HashSet<>();
 
-		public Dog toDog() {
-			Dog dog = new  Dog();
-			dog.setDogId(dogId);
-			dog.setName(name);
-			dog.setAge(age);
-			dog.setColor(color);
-			dog.setName(name);
-			
-			//set Breeds
-			for(BreedData breeData : breeds ) {
-				dog.getBreeds().add(breeData.toBreed());
-			}
-			
-			return dog;
-		}
+    /**
+     * Convert from a Dog entity object to a DogData object.
+     * 
+     * @param dog The Dog entity
+     */
+    public DogData(Dog dog) {
+      this.dogId = dog.getDogId();
+      this.name = dog.getName();
+      this.age = dog.getAge();
+      this.color = dog.getColor();
 
-	}//end of DogData class
+      for(Breed breed : dog.getBreeds()) {
+        this.breeds.add(new BreedData(breed));
+      }
+    }
 
-	@Data
-	@NoArgsConstructor
-	public class BreedData {
-		private Long breedId;
-		private String name;
+    /**
+     * Convert from a DogData object to a Dog entity object.
+     * 
+     * @return The Dog entity object.
+     */
+    public Dog toDog() {
+      Dog dog = new Dog();
 
-		// BReeddata constructor that takes a breed
-		public BreedData(Breed breed) {
-			this.breedId = breed.getBreedId();
-			this.name = breed.getName();
+      dog.setDogId(dogId);
+      dog.setName(name);
+      dog.setAge(age);
+      dog.setColor(color);
 
-		}
+      for(BreedData breedData : breeds) {
+        dog.getBreeds().add(breedData.toBreed());
+      }
 
-		public Breed toBreed() {
-			Breed breed = new Breed();
+      return dog;
+    }
+  }
 
-			// fill in instance variables
-			breed.setBreedId(breedId);
-			breed.setName(name);
+  /**
+   * This inner class represents a Breed entity without the recursive variables
+   * or JPA semantics.
+   * 
+   * @author Promineo
+   *
+   */
+  @Data
+  @NoArgsConstructor
+  public static class BreedData {
+    private Long breedId;
+    private String name;
 
-			return breed;
+    /**
+     * Convert from a Breed entity object to a BreedData object.
+     * 
+     * @param breed The Breed entity object.
+     */
+    public BreedData(Breed breed) {
+      this.breedId = breed.getBreedId();
+      this.name = breed.getName();
+    }
 
-		}
+    /**
+     * Convert from a BreedData object to a Breed entity object.
+     * 
+     * @return The Breed entity object.
+     */
+    public Breed toBreed() {
+      Breed breed = new Breed();
 
-	}// end of BreedData class
+      breed.setBreedId(breedId);
+      breed.setName(name);
 
-}//end of LocationData class
+      return breed;
+    }
+  }
+}

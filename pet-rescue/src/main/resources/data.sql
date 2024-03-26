@@ -28,4 +28,3 @@ INSERT INTO breed (name) values('West Highland White Terrier');
 INSERT INTO breed (name) values('Bernese Mountain Dog');
 INSERT INTO breed (name) values('Great Dane');
 INSERT INTO breed (name) values('Brittany Spaniel');
-
